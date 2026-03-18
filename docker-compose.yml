@@ -1,0 +1,40 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto-mqtt
+    ports:
+      - "1884:1884"
+    volumes:
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mqtt/passwd:/mosquitto/config/passwd
+    networks:
+      - opd1_netwerken
+
+  web-app:
+    image: nginx:alpine
+    container_name: netwerken_opd1_frontend
+    ports:
+      - "15900:80" # Deze poorten zijn gekozen ivm dat ik alles bouw op mijn eigen server, en poort 80 en 443 zelf al in gebruik zijn
+      - "15980:443"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - opd1_netwerken
+
+  server-app:
+    build: ./server-side
+    container_name: netwerken_opd1_backend
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./certs:/etc/ssl/certs:ro
+    networks:
+      - opd1_netwerken
+    depends_on:
+      - mosquitto
+
+networks:
+  opd1_netwerken:
+    driver: bridge
