@@ -17,4 +17,4 @@
 Voordat de applicatie bekeken kan worden, moet je in je browser eerst `127.0.0.1:1883` openen, en hier accepteren de 'risicos' te accepteren. Dit is wat alle browsers doen, anders werken de websockets namelijk niet
 
 <b>Stap 6</b>
-Het programma is nu te bezoeken via 127.0.0.1
+Het programma is nu te bezoeken via `127.0.0.1`
