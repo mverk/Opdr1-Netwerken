@@ -18,3 +18,6 @@ Voordat de applicatie bekeken kan worden, moet je in je browser eerst `127.0.0.1
 
 <b>Stap 6</b>
 Het programma is nu te bezoeken via `127.0.0.1`
+
+------------
+Het wachtwoord van MQTT/Mosquitto is te vinden onder de mqtt folder in het .md bestand
