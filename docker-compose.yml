@@ -14,8 +14,8 @@ services:
     image: nginx:alpine
     container_name: netwerken_opd1_frontend
     ports:
-      - "15900:80" # Deze poorten zijn gekozen ivm dat ik alles bouw op mijn eigen server, en poort 80 en 443 zelf al in gebruik zijn
-      - "15980:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./html:/usr/share/nginx/html:ro
       - ./certs:/etc/nginx/certs:ro

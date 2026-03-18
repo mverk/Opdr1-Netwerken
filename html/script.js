@@ -1,4 +1,4 @@
-const ws = new WebSocket('wss://192.168.2.58:1883/', null, null, null, {rejectUnauthorized: false});
+const ws = new WebSocket('wss://127.0.0.1:1883/', null, null, null, {rejectUnauthorized: false});
 const messagesContainer = document.getElementById('messages');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
@@ -14,7 +14,7 @@ ws.onclose = () => {
 
 ws.onmessage = (event) => {
     const data = event.data;
-
+    // filtert het bericht. als hier een seperator instaat (| in dit geval) is het een bericht vanuit de gebruiker
     if (!data.includes('|')) {
         console.log("Ignoring system/topic message:", data);
         return; 
@@ -25,13 +25,14 @@ ws.onmessage = (event) => {
     const messageSplit = data.indexOf('|');
     const sender = data.substring(0, messageSplit).trim();
 
+    // als het bericht NIET van de gebruiker is wordt deze functie aangeroepen
     if (sender !== currentUser) {
         showMessageOnScreen(data, false);
     }
 
 };
 
-
+// verzend het bericht naar de websocket
 document.getElementById('send').addEventListener('click', () => {
     const input = document.getElementById('message');
     ws.send(input.value);
