@@ -1,4 +1,5 @@
-const ws = new WebSocket('wss://127.0.0.1:1883/', null, null, null, {rejectUnauthorized: false});
+const ws = new WebSocket('wss://127.0.0.1:1883/', null, null, null
+);
 const messagesContainer = document.getElementById('messages');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
