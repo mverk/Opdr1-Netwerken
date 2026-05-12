@@ -35,6 +35,11 @@ const serverConfig = {
 
 const httpsServer = https.createServer(serverConfig);
 const wss = new WebSocket.Server({server: httpsServer});
+
+const client = mqtt.connect("mqtt://mosquitto:1883", {
+  username: 'admin',
+  password: 'admin1234'
+});
 ```
 
 Ook in de client side server.js (html/server.js) wordt er verbonden met deze beveiligde poort:
