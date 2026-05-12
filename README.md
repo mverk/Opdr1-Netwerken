@@ -47,3 +47,5 @@ Ook in de client side server.js (html/server.js) wordt er verbonden met deze bev
 ```
 const ws = new WebSocket('wss://127.0.0.1:1883/', null, null, null, {rejectUnauthorized: false});
 ```
+
+Dit kan allemaal verwarrend overkomen omdat ik in eerste instantie de opdracht niet helemaal goed heb begrepen, en dus een "externe" container gebruik voor de websockets (de server-side). Hierdoor is er ook een deel interne routing in docker.
