@@ -1,77 +1,40 @@
-const ws = new WebSocket('wss://127.0.0.1:1883/', null, null, null, {rejectUnauthorized: false});
+const ws = new WebSocket('wss://127.0.0.1:8884/', null, null, null, { rejectUnauthorized: false });
+
 const messagesContainer = document.getElementById('messages');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
 const usernameInput = document.getElementById('username');
 
 ws.onopen = () => {
-    console.log("[OPD1 Netwerken] Websocket has been connected");
-}
-
-ws.onclose = () => {
-    console.log('[OPD1 Netwerken] Websocket has been disconnected');
+    console.log("[WS] Verbonden met de server");
 };
 
 ws.onmessage = (event) => {
     const data = event.data;
-    // filtert het bericht. als hier een seperator instaat (| in dit geval) is het een bericht vanuit de gebruiker
-    if (!data.includes('|')) {
-        console.log("Ignoring system/topic message:", data);
+    const currentUser = usernameInput.value.trim() || "User";
+
+    if (data.startsWith(currentUser + ":")) {
         return; 
     }
 
-    const currentUser = usernameInput.value.trim() || "Gebruiker";
-    
-    const messageSplit = data.indexOf('|');
-    const sender = data.substring(0, messageSplit).trim();
-
-    // als het bericht NIET van de gebruiker is wordt deze functie aangeroepen
-    if (sender !== currentUser) {
-        showMessageOnScreen(data, false);
-    }
-
+    // inkomende berichten van de user of van de bot
+    showMessageOnScreen(data, false);
 };
 
-// verzend het bericht naar de websocket
-document.getElementById('send').addEventListener('click', () => {
-    const input = document.getElementById('message');
-    ws.send(input.value);
-    input.value = '';
-})
+ws.onclose = () => {
+    console.log('[WS] Verbinding verbroken');
+};
 
-function showMessageOnScreen(data, isClient) {
-    const messageDiv = document.createElement('div');
-
-    // data wordt verstuurd in het format "username | bericht", dus dit moet nog gefiltert worden, dat gebeurd hieronder
-    const messageSplit = data.indexOf('|');
-    const user = messageSplit > -1 ? data.substring(0, messageSplit) : "Unknown User";
-    const messageText = messageSplit > -1 ? data.substring(messageSplit + 1) : data;
-
-    // isClient wordt hier gebruikt om tekst van de gebruiker zelf een andere positie te geven
-    messageDiv.className = `flex flex-col ${isClient ? 'items-end' : 'items-start'}`;
-    messageDiv.innerHTML = `
-        <span class="text-[10px] text-gray-500 mb-1 ml-1 mr-1">${user}</span>
-        <div class="max-w-[80%] px-4 py-2 rounded-2xl text-sm ${
-            isClient 
-            ? 'bg-green-600 text-white rounded-tr-none' 
-            : 'bg-gray-800 text-gray-200 rounded-tl-none border border-gray-700'
-        }">
-            ${messageText}
-        </div>
-    `;
-
-    messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
+// bericht versturen
 chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
 
+    const user = usernameInput.value.trim() || "User";
+    const message = messageInput.value.trim();
 
-    const user = usernameInput.value.trim() || "Gebruiker";
-    const message = messageInput.value;
-
-    if (message.trim() !== "" && ws.readyState === WebSocket.OPEN) {
-        const completeMessage = `${user} | ${message}`;
+    if (message !== "" && ws.readyState === WebSocket.OPEN) {
+        // formatteren van bericht
+        const completeMessage = `${user}: ${message}`;
         
         ws.send(completeMessage);
 
@@ -79,9 +42,30 @@ chatForm.addEventListener('submit', (e) => {
 
         messageInput.value = '';
         messageInput.focus(); 
-    } else if (ws.readyState !== WebSocket.OPEN) {
-        console.error("[OPD1 Netwerken] WebSocket could not connect/is not connected. Try refreshing your browser...");
     }
-    e.preventDefault();
-
 });
+
+function showMessageOnScreen(data, isClient) {
+    const messageDiv = document.createElement('div');
+
+    // naam splitsen voor op de UI
+    const separatorIdx = data.indexOf(':');
+    const sender = separatorIdx > -1 ? data.substring(0, separatorIdx).trim() : "Systeem";
+    const text = separatorIdx > -1 ? data.substring(separatorIdx + 1).trim() : data;
+
+    messageDiv.className = `flex flex-col ${isClient ? 'items-end' : 'items-start'}`;
+    messageDiv.innerHTML = `
+        <span class="text-[10px] text-gray-500 mb-1 px-2">${sender}</span>
+        <div class="max-w-[85%] px-4 py-2 rounded-2xl text-sm shadow-sm ${
+            isClient 
+            ? 'bg-blue-600 text-white rounded-tr-none' 
+            : 'bg-gray-800 text-gray-200 rounded-tl-none border border-gray-700'
+        }">
+            ${text}
+        </div>
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    // automatisch scrollen
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}

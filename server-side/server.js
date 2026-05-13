@@ -3,47 +3,47 @@ const WebSocket = require("ws");
 const https = require('https');
 const fs = require('fs');
 
+// SSL certificaten
 const serverConfig = {
     cert: fs.readFileSync('/etc/ssl/certs/opd1-netwerken.crt'),
     key: fs.readFileSync('/etc/ssl/certs/opd1-netwerken.key')
 };
 
 const httpsServer = https.createServer(serverConfig);
-const wss = new WebSocket.Server({server: httpsServer});
+const wss = new WebSocket.Server({ server: httpsServer });
 
+// verbinding met MQTT
 const client = mqtt.connect("mqtt://mosquitto:1883", {
-  username: 'admin',
-  password: 'admin1234'
+    username: 'student',
+    password: 'welkom01'
 });
 
 client.on("connect", () => {
-  client.subscribe("opd1/chat", (err) => {
-    if(!err) {
-      
-    }
-  });
+    console.log("[MQTT] Verbonden met broker");
+    client.subscribe("chat/message");
 });
 
 client.on("message", (topic, message) => {
-  console.log(message.toString());
-  wss.clients.forEach((wsClient) => {
-    if(wsClient.readyState === WebSocket.OPEN) {
-      wsClient.send(message.toString());
-    }
-  })
-})
+    const msg = message.toString();
+    console.log("[MQTT -> WS]: " + msg);
+    wss.clients.forEach((wsClient) => {
+        if (wsClient.readyState === WebSocket.OPEN) {
+            wsClient.send(msg);
+        }
+    });
+});
 
 wss.on('connection', (ws) => {
-  console.log("[OPD1 Netwerken] Browser has been connected via Websocket");
-  ws.on('message', (message) => {
-    console.log("[OPD1 Netwerken] Received message: " + message.toString());
-    client.publish('opd1/chat', message.toString());
-  });
+    console.log("[WS] Nieuwe browser verbinding");
+    
+    ws.on('message', (message) => {
+        const msg = message.toString();
+        console.log("[WS -> MQTT]: " + msg);
+        client.publish('chat/message', msg);
+    });
+});
 
-  client.on('message', (messageFromMqtt) => {
-    ws.send(messageFromMqtt.toString());
-  })
-})
-httpsServer.listen(1883, () => {
-  console.log("[OPD1 Netwerken] Websocket running on port 1883");
-})
+
+httpsServer.listen(8884, () => {
+    console.log("[SERVER] Secure WebSocket bridge draait op https://localhost:8884");
+});

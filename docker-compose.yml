@@ -3,10 +3,13 @@ services:
     image: eclipse-mosquitto:latest
     container_name: mosquitto-mqtt
     ports:
+      - "1883:1883"
+      - "8883:8883"
       - "1884:1884"
     volumes:
       - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mqtt/passwd:/mosquitto/config/passwd
+      - ./certs:/mosquitto/config/certs:ro
     networks:
       - opd1_netwerken
 
@@ -27,7 +30,7 @@ services:
     build: ./server-side
     container_name: netwerken_opd1_backend
     ports:
-      - "1883:1883"
+      - "8884:8884"
     volumes:
       - ./certs:/etc/ssl/certs:ro
     networks:
