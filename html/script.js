@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 const ws = new WebSocket('wss://127.0.0.1:8884/', null, null, null, { rejectUnauthorized: false });
 
+=======
+const ws = new WebSocket('wss://127.0.0.1:1883/', null, null, null
+);
+>>>>>>> 866b1d46a05a8c41d236a9904c7dbab8f5da2fb2
 const messagesContainer = document.getElementById('messages');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
